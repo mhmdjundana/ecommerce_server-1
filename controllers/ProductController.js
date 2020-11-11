@@ -25,7 +25,8 @@ class ProductController {
   }
   static create(req, res, next) {
     let { name, image_url, price, stock } = req.body
-
+    console.log('==BODY==')
+    console.log({ name, image_url, price, stock })
     Product.create({ name, image_url, price, stock })
       .then(data => {
         res.status(201).json(data)
