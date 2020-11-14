@@ -1,12 +1,34 @@
 const request = require('supertest')
 const app = require('../app')
+const { Product, User } = require('../models/')
+const { signToken, verifyToken } = require('../helpers/jwt')
 
 let access_token = ''
 
 beforeAll (() => {
   console.log('=== MASUK BEFOREALL PRODUCT ===')
-
+  User.create({
+    email: 'jundana@mail.com', password: '123123'
+  })
+    .then(data => {
+      console.log(data,'data beforeALL +++++')
+    })
+    .catch(err => {
+      console.log('err beforeALL +++++', err)
+    })
+  // access_token = signToken({id: 1, email: 'jundana@mail.com'})
 })
+afterAll (() => {
+  console.log('MASUK AFTER all USER')
+  User.destroy({ where: { email: 'jundana@mail.com' }})
+  .then(data => {
+    console.log('data afterALL +++++', data)
+  })
+  .catch(err => {
+    console.log('err afterALL +++++', err)
+  })
+})
+console.log('******************** asdasdas ***************************')
 
 describe('Test endpoint POST /products/add', () => {
   it('test add product success', () => {

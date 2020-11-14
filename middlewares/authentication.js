@@ -18,7 +18,8 @@ async function authentication(req, res, next) {
       if (!user) {
         throw { msg: 'Authentication failed', status: 401 }
       } else {
-        req.loggedInUser = decoded
+        const { id, email, role } = user
+        req.loggedInUser = { id, email, role }
         next()
       }
     }
