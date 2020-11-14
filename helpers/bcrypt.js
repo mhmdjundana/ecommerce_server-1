@@ -1,9 +1,8 @@
-const { request } = require("express");
-
 const bcrypt = require('bcryptjs')
+const saltForTest = +process.env.SALT || 10
 
 function hashPassword(password) {
-  let salt = bcrypt.genSaltSync(+process.env.SALT)
+  let salt = bcrypt.genSaltSync(saltForTest)
   return bcrypt.hashSync(password, salt)
 }
 

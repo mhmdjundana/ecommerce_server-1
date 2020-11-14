@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Price is required!'
         },
         min: {
-          args: 0,
+          args: [0],
           msg: 'Price must equal or greater than 0'
         }
       }
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Stock is required!'
         },
         min: {
-          args: 0,
+          args: [0],
           msg: 'Stock must equal or greater than 0'
         }
       }

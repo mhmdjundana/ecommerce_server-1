@@ -15,5 +15,5 @@ module.exports = function (err, req, res, next) {
       return el.message
     })
   }
-  res.status(status).json(msg)
+  res.status(status).json({ msg })
 }
