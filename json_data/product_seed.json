@@ -1,0 +1,58 @@
+[
+  {
+      "name": "NMD R1 Black and Gum Shoes",
+      "image_url": "https://assets.adidas.com/images/h_840,f_auto,q_auto:sensitive,fl_lossy/459ff194c35e45ea91b1a8ba00fc4876_9366/NMD_R1_Shoes_Black_B42200_01_standard.jpg",
+      "price": 1200000,
+      "stock": 20,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-11"
+  },
+  {
+      "name": "TREFOIL CUFF CREW SOCKS 2 PAIRS",
+      "image_url": "https://assets.adidas.com/images/w_320,h_320,f_auto,q_auto:sensitive,fl_lossy/4710ea0dc0134988b2ddabaa009c432c_9366/GD3559_00_plp_standard.jpg",
+      "price": 140000,
+      "stock": 25,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-11"
+  },
+  {
+      "name": "ADILETTE COMFORT SLIDES",
+      "image_url": "https://assets.adidas.com/images/h_840,f_auto,q_auto:sensitive,fl_lossy/2a4d6189e3a64c6e9fd5a80801532571_9366/Adilette_Comfort_Slides_Black_S82137_01_standard.jpg",
+      "price": 350000,
+      "stock": 10,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-11"
+  },
+  {
+      "name": "COURT LITE 2 BACKPACK",
+      "image_url": "https://assets.adidas.com/images/w_320,h_320,f_auto,q_auto:sensitive,fl_lossy/1d0b4405c9de43ec922eaa260008b5c2_9366/CL5756_00_plp_standard.jpg",
+      "price": 3500000,
+      "stock": 5,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-11"
+  },
+  {
+      "name": "RELEASE 2 STRETCH-FIT HAT",
+      "image_url": "https://assets.adidas.com/images/w_320,h_320,f_auto,q_auto:sensitive,fl_lossy/756dad0c3a2b437fa45dab60016b5637_9366/EW4864_00_plp_standard.jpg",
+      "price": 260000,
+      "stock": 12,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-11"
+  },
+  {
+      "name": "TREFOIL TEE",
+      "image_url": "https://assets.adidas.com/images/w_320,h_320,f_auto,q_auto:sensitive,fl_lossy/5f5a3b44aa044443bc2fa83500f4a78a_9366/CY4574_01_laydown.jpg",
+      "price": 260000,
+      "stock": 30,
+      "createdAt": "2020-11-11",
+      "updatedAt": "2020-11-14"
+  },
+  {
+      "name": "kaos polos",
+      "image_url": "https://thumbs.dreamstime.com/b/no-image-available-icon-photo-camera-flat-vector-illustration-132483141.jpg",
+      "price": 12000,
+      "stock": 100,
+      "createdAt": "2020-11-14",
+      "updatedAt": "2020-11-14"
+  }
+]

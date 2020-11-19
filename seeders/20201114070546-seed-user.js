@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    let dataSeed = require('../json_data_user/user_seed.json')
+    let dataSeed = require('../json_data/user_seed.json')
     dataSeed.forEach(user => {
       // hashing password
       user.password = require('../helpers/bcrypt').hashPassword(user.password)

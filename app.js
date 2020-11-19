@@ -20,7 +20,7 @@ app.use(router)
 app.use(errorHandler)
 
 app.listen(port, () => {
-  console.log('applistening on port:', port)
+  console.log('app listening on port:', port)
 })
 
 module.exports = app

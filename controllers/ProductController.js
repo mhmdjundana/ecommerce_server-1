@@ -4,22 +4,22 @@ class ProductController {
   static showProduct(req, res, next) {
     Product.findAll()
       .then(data => {
-        console.log(data)
+        // console.log(data)
         res.status(200).json(data)
       })
       .catch(err => {
-        console.log(err)
+        // console.log(err)
         next(err)
       })
   }
   static getOneProduct(req, res, next) {
     Product.findByPk(+req.params.id)
       .then(data => {
-        console.log(data)
+        // console.log(data)
         res.status(200).json(data)
       })
       .catch(err => {
-        console.log(err)
+        // console.log(err)
         next(err)
       })
   }
@@ -45,7 +45,7 @@ class ProductController {
   }
   static update(req, res, next) {
     let { id, name, image_url, price, stock } = req.body
-    console.log('data===========', name, image_url, price, stock)
+    // console.log('data===========', name, image_url, price, stock)
     Product.update({ name, image_url, price, stock }, {
       where: {
         id

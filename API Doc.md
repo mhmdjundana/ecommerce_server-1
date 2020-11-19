@@ -1,3 +1,4 @@
+## USER
 ### 1. POST /register
 User register
 
@@ -61,6 +62,8 @@ Response
 - Error - 400 : Bad Request
 - Error - 500 : Internal Server Error
 
+## PRODUCT
+---
 ### 4. GET /products
 Product show all
 
@@ -204,5 +207,137 @@ Response
 - Error - 400 : Bad Request
 - Error - 401 : Unauthorized
 - Error - 404 : Not Found
+- Error - 500 : Internal Server Error
+
+## CART
+---
+### 9. POST /carts/add
+Create a cart
+
+Request
+- Header
+    ```json
+    {
+        "access_token":"string"
+    }
+    ```
+- Body
+    ```json
+        {
+            "qty": "integer",
+            "ProductId": "integer"
+        }
+    ```
+Response
+- Success - 200 - jika cart dengan product id yg diinput sudah ada akan di prosees di no. 12 PATCH /carts/patch/:id
+    ```json
+        {
+            "id": "integer",
+            "qty": "integer",
+            "UserId": "integer",
+            "ProductId": "integer",
+            "createdAt": "date",
+            "updatedAt": "date"
+        }
+    ```
+- Success created - 201 - jika belum ada
+    ```json
+        {
+            "id": "integer",
+            "qty": "integer",
+            "UserId": "integer",
+            "ProductId": "integer",
+            "createdAt": "date",
+            "updatedAt": "date"
+        }
+    ```
+- Error - 400 : Bad Request
+- Error - 401 : Unauthorized
+- Error - 500 : Internal Server Error
+
+### 10. GET /carts/show-carts
+Show all carts owned by loggedin user
+
+Request
+- Header
+    ```json
+    {
+        "access_token":"string"
+    }
+    ```
+Response
+- Success - 200
+    ```json
+        [
+            "objects of cart include product"
+        ]
+    ```
+- Error - 400 : Bad Request
+- Error - 401 : Unauthorized
+- Error - 500 : Internal Server Error
+
+### 11. DELETE /carts/delete/:id
+Delete a cart
+
+Request
+- Header
+    ```json
+        {
+            "access_token":"string"
+        }
+    ```
+- Params
+    ```json
+        {
+            "id": "integer"
+        }
+    ```
+Response
+- Success - 200
+    ```json
+        {
+            "msg": "Card delete succeed"
+        }
+    ```
+- Error - 400 : Bad Request
+- Error - 401 : Unauthorized
+- Error - 500 : Internal Server Error
+
+### 12. PATCH /carts/patch/:id
+Update qty
+
+Request
+- Header
+    ```json
+        {
+            "access_token":"string"
+        }
+    ```
+- Params
+    ```json
+        {
+            "id": "integer"
+        }
+    ```
+- Body
+    ```json
+        {
+            "qty": "integer"
+        }
+    ```
+Response
+- Success - 200
+    ```json
+        {
+            "id": "integer",
+            "qty": "integer",
+            "UserId": "integer",
+            "ProductId": "integer",
+            "createdAt": "date",
+            "updatedAt": "date"
+        }
+    ```
+- Error - 400 : Bad Request
+- Error - 401 : Unauthorized
 - Error - 500 : Internal Server Error
 
