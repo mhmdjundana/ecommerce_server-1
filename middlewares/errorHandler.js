@@ -1,6 +1,6 @@
 module.exports = function (err, req, res, next) {
-  console.log('***masuk error handler***')
-  console.log(err)
+  // console.log('***masuk error handler***')
+  // console.log(err)
   let status = err.status || 500
   let msg = err.name || err.msg || 'Internal server error!'
 

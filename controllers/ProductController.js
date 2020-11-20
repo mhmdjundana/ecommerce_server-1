@@ -33,23 +33,23 @@ class ProductController {
         next(err)
       })
   }
-  static delete(req, res, next) {
+  static deleteProduct(req, res, next) {
     let id = +req.params.id
     Product.destroy({ where: { id } })
       .then(data => {
-        res.status(201).json(data)
+        res.status(200).json({ msg: 'Delete product success' })
       })
       .catch(err => {
         next(err)
       })
   }
   static update(req, res, next) {
-    let { id, name, image_url, price, stock } = req.body
-    // console.log('data===========', name, image_url, price, stock)
+    let { name, image_url, price, stock } = req.body
+    let { id } = req.params
     Product.update({ name, image_url, price, stock }, {
       where: {
         id
-      }
+      }, returning: true
     })
       .then(data => {
         res.status(200).json(data)

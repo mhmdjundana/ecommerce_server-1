@@ -2,38 +2,73 @@ const request = require('supertest')
 const app = require('../app')
 const { Product, User } = require('../models/')
 const { signToken, verifyToken } = require('../helpers/jwt')
+const { sequelize } = require('../models/')
+const { queryInterface } = sequelize 
 
 let access_token = ''
+let access_token_customer = ''
+let productId = null
 
-beforeAll (() => {
-  console.log('=== MASUK BEFOREALL PRODUCT ===')
-  User.create({
-    email: 'jundana@mail.com', password: '123123'
-  })
+beforeAll ((done) => {
+  // console.log('=== MASUK BEFOREALL PRODUCT ===')
+  queryInterface.bulkInsert('Users', [
+    {email: 'jundana@mail.com', password: '123123', role: 'admin', createdAt: new Date(), updatedAt: new Date()},
+    {email: 'atian@mail.com', password: '123123', role: 'customer', createdAt: new Date(), updatedAt: new Date()}
+  ])
+    // .then(data => {
+    //   // console.log(data,'data beforeALL +++++')
+    //   return User.findOne({ where: { email: 'jundana@mail.com' }})
+    //   // done()
+    // })
+  User.findOne({ where: { email: 'jundana@mail.com' }})
+    // .catch(err => {
+    //   console.log('err beforeALL +++++', err)
+    //   done()
+    // })
     .then(data => {
-      console.log(data,'data beforeALL +++++')
+      access_token = signToken({ id: data.id, email: data.email })
+      return User.findOne({ where: { email: 'atian@mail.com' }})
+      // done()
+    })
+    .then(data => {
+      access_token_customer = signToken({ id: data.id, email: data.email })
+      done()
     })
     .catch(err => {
-      console.log('err beforeALL +++++', err)
+      done()
     })
-  // access_token = signToken({id: 1, email: 'jundana@mail.com'})
 })
-afterAll (() => {
-  console.log('MASUK AFTER all USER')
-  User.destroy({ where: { email: 'jundana@mail.com' }})
-  .then(data => {
-    console.log('data afterALL +++++', data)
-  })
-  .catch(err => {
-    console.log('err afterALL +++++', err)
-  })
+afterAll ((done) => {
+  // console.log('MASUK AFTER all USER')
+  // User.destroy({ where: { email: 'jundana@mail.com' }})
+  // .then(data => {
+  //   // console.log('data afterALL +++++', data)
+  //   done()
+  // })
+  // .catch(err => {
+  //   console.log('err afterALL +++++', err)
+  //   done()
+  // })
+  queryInterface.bulkDelete('Products')
+    .then(data => {
+      return queryInterface.bulkDelete('Users')
+    })
+    .then(data => {
+      done()
+    })
+    .catch(err => {
+      console.log('err afterALL +++++', err)
+      done()
+    })
 })
-console.log('******************** asdasdas ***************************')
+// console.log('******************** asdasdas ***************************')
 
-describe('Test endpoint POST /products/add', () => {
-  it('test add product success', () => {
+describe('Test endpoint POST /add', () => {
+  it('test add product success', (done) => {
+    // console.log('==================access_token======================')
+    // console.log(access_token, 'asdasd')
     request(app)
-      .post('/products/add')
+      .post('/add')
       .set('access_token', access_token)
       .send({
         name: 'kemeja',
@@ -43,20 +78,25 @@ describe('Test endpoint POST /products/add', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(201)
+        productId = body.id
+        expect(status).toEqual(201)
         expect(body).toHaveProperty('name', 'kemeja')
         expect(body).toHaveProperty('image_url', 'http://img.com')
         expect(body).toHaveProperty('price', 100000)
         expect(body).toHaveProperty('stock', 50)
         expect(body).toHaveProperty('id', expect.any(Number))
-        expect(body).toHaveProperty('createdAt', expect.any(Date))
-        expect(body).toHaveProperty('updatedAt', expect.any(Date))
+        expect(body).toHaveProperty('createdAt', expect.any(String))
+        expect(body).toHaveProperty('updatedAt', expect.any(String))
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product without acces_token', () => {
+  it('test add product without acces_token', (done) => {
     request(app)
-      .post('/products/add')
+      .post('/add')
       .send({
         name: 'kemeja',
         image_url: 'http://img.com',
@@ -65,17 +105,19 @@ describe('Test endpoint POST /products/add', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(401)
+        expect(status).toEqual(401)
         expect(body).toHaveProperty('msg', 'Authentication failed')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product without administrator\'s acces_token', () => {
+  it('test add product without administrator\'s acces_token', (done) => {
     request(app)
-      .post('/products/add')
-      .set({
-        access_token: 'not.admin'
-      })
+      .post('/add')
+      .set('access_token', access_token_customer)
       .send({
         name: 'kemeja',
         image_url: 'http://img.com',
@@ -84,33 +126,41 @@ describe('Test endpoint POST /products/add', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(401)
-        expect(body).toHaveProperty('msg', 'Authentication failed')
+        expect(status).toEqual(401)
+        expect(body).toHaveProperty('msg', 'Not authorized')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product required field without value', () => {
+  it('test add product required field without value', (done) => {
     request(app)
-      .post('/products/add')
+      .post('/add')
       .set({
         access_token
       })
       .send({
-        name: '',
+        name: null,
         image_url: 'http://img.com',
         price: 100000,
         stock: 50
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
+        expect(status).toEqual(400)
         expect(body).toHaveProperty('msg', 'Name is required!')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product: stock has negative value', () => {
+  it('test add product: stock has negative value', (done) => {
     request(app)
-      .post('/products/add')
+      .post('/add')
       .set({
         access_token
       })
@@ -122,14 +172,18 @@ describe('Test endpoint POST /products/add', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
-        expect(body).toHaveProperty('msg', 'Stock value must equal or greater than 0!')
+        expect(status).toEqual(400)
+        expect(body).toHaveProperty('msg', 'Stock must equal or greater than 0')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product: price has negative value', () => {
+  it('test add product: price has negative value', (done) => {
     request(app)
-      .post('/products/add')
+      .post('/add')
       .set({
         access_token
       })
@@ -141,37 +195,44 @@ describe('Test endpoint POST /products/add', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
-        expect(body).toHaveProperty('msg', 'Price value must equal or greater than 0!')
+        expect(status).toEqual(400)
+        expect(body).toHaveProperty('msg', 'Price must equal or greater than 0')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test add product: field diisi tipe data yg tak sesuai', () => {
+  it('test add product: field diisi tipe data yg tak sesuai', (done) => {
     request(app)
-      .post('/products/add')
+      .post('/add')
       .set({
         access_token
       })
       .send({
         name: 'kemeja',
         image_url: 'http://img.com',
-        price: '100000',
+        price: 'price 100000',
         stock: 50
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
+        expect(status).toEqual(400)
         expect(body).toHaveProperty('msg', 'Price value must be a number!')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
 })
 
-describe('Test endpoint POST /products/update:id', () => {
-  it('test update product: success', () => {
+describe('Test endpoint POST /update/:id', () => {
+  it('test update product: without acces_token', (done) => {
     request(app)
-      .post('/products/update:id')
-      .set('access_token', access_token)
+      .put(`/update/${productId}`)
       .send({
         name: 'kemeja putih',
         image_url: 'http://img.com/image.jpg',
@@ -180,35 +241,20 @@ describe('Test endpoint POST /products/update:id', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(201)
-        expect(body).toHaveProperty('name', 'kemeja putih')
-        expect(body).toHaveProperty('image_url', 'http://img.com/image.jpg')
-        expect(body).toHaveProperty('price', 150000)
-        expect(body).toHaveProperty('stock', 100)
-      })
-      .catch(err => console.log(err))
-  })
-  it('test update product: without acces_token', () => {
-    request(app)
-      .post('/products/update:id')
-      .send({
-        name: 'kemeja putih',
-        image_url: 'http://img.com/image.jpg',
-        price: 150000,
-        stock: 100
-      })
-      .then(response => {
-        let { body, status } = response
-        expect(status).toBe(401)
+        expect(status).toEqual(401)
         expect(body).toHaveProperty('msg', 'Authentication failed')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test update product: without administrator\'s acces_token', () => {
+  it('test update product: without administrator\'s acces_token', (done) => {
     request(app)
-      .post('/products/update:id')
+      .put(`/update/${productId}`)
       .set({
-        access_token: 'not.admin'
+        access_token: access_token_customer
       })
       .send({
         name: 'kemeja putih',
@@ -218,14 +264,18 @@ describe('Test endpoint POST /products/update:id', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(401)
-        expect(body).toHaveProperty('msg', 'Authentication failed')
+        expect(status).toEqual(401)
+        expect(body).toHaveProperty('msg', 'Not authorized')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test update product: stock has negative value', () => {
+  it('test update product: stock has negative value', (done) => {
     request(app)
-      .post('/products/update:id')
+      .put(`/update/${productId}`)
       .set({
         access_token
       })
@@ -237,14 +287,18 @@ describe('Test endpoint POST /products/update:id', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
-        expect(body).toHaveProperty('msg', 'Stock value must equal or greater than 0!')
+        expect(status).toEqual(400)
+        expect(body).toHaveProperty('msg', 'Stock must equal or greater than 0')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test update product: price has negative value', () => {
+  it('test update product: price has negative value', (done) => {
     request(app)
-      .post('/products/update:id')
+      .put(`/update/${productId}`)
       .set({
         access_token
       })
@@ -256,65 +310,111 @@ describe('Test endpoint POST /products/update:id', () => {
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
-        expect(body).toHaveProperty('msg', 'Price value must equal or greater than 0!')
+        expect(status).toEqual(400)
+        expect(body).toHaveProperty('msg', 'Price must equal or greater than 0')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
-  it('test update product: field diisi tipe data yg tak sesuai', () => {
+  it('test update product: field diisi tipe data yg tak sesuai', (done) => {
     request(app)
-      .post('/products/update:id')
+      .put(`/update/${productId}`)
       .set({
         access_token
       })
       .send({
         name: 'kemeja putih',
         image_url: 'http://img.com/image.jpg',
-        price: '150000',
+        price: 'price 150000',
         stock: 100
       })
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(400)
+        expect(status).toEqual(400)
         expect(body).toHaveProperty('msg', 'Price value must be a number!')
+        done()
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        done()
+      })
+  })
+  it('test update product: success', (done) => {
+    // console.log('===============productId================')
+    // console.log(productId, 'ajsodoqi0eiq0ei')
+    request(app)
+      .put(`/update/${productId}`)
+      .set('access_token', access_token)
+      .send({
+        name: 'kemeja putih',
+        image_url: 'http://img.com/image.jpg',
+        price: 150000,
+        stock: 100
+      })
+      .then(response => {
+        let { body, status } = response
+        expect(status).toEqual(200)
+        expect(body[1][0]).toHaveProperty('name', 'kemeja putih')
+        expect(body[1][0]).toHaveProperty('image_url', 'http://img.com/image.jpg')
+        expect(body[1][0]).toHaveProperty('price', 150000)
+        expect(body[1][0]).toHaveProperty('stock', 100)
+        done()
+      })
+      .catch(err => {
+        console.log(err)
+        done()
+      })
   })
 })
 
-describe('Test endpoint POST /products/delete/:id', () => {
-  it('test delete product: success', () => {
+describe('Test endpoint DELETE /delete/:id', () => {
+  it('test delete product: without acces_token', (done) => {
     request(app)
-      .post('/products/delete:id')
+      .delete(`/delete/${productId}`)
+      .then(response => {
+        let { body, status } = response
+        expect(status).toEqual(401)
+        expect(body).toHaveProperty('msg', 'Authentication failed')
+        done()
+      })
+      .catch(err => {
+        console.log(err)
+        done()
+      })
+  })
+  it('test delete product: without administrator\'s acces_token', (done) => {
+    request(app)
+      .delete(`/delete/${productId}`)
+      .set({
+        access_token: access_token_customer
+      })
+      .then(response => {
+        let { body, status } = response
+        expect(status).toEqual(401)
+        expect(body).toHaveProperty('msg', 'Not authorized')
+        done()
+      })
+      .catch(err => {
+        console.log(err)
+        done()
+      })
+  })
+  it('test delete product: success', (done) => {
+    request(app)
+      .delete(`/delete/${productId}`)
       .set('access_token', access_token)
       .then(response => {
         let { body, status } = response
-        expect(status).toBe(200)
+        expect(status).toEqual(200)
         expect(body).toHaveProperty('msg', 'Delete product success')
+        done()
       })
-      .catch(err => console.log(err))
-  })
-  it('test delete product: without acces_token', () => {
-    request(app)
-      .post('/products/delete:id')
-      .then(response => {
-        let { body, status } = response
-        expect(status).toBe(401)
-        expect(body).toHaveProperty('msg', 'Authentication failed')
+      .catch(err => {
+        console.log(err)
+        done()
       })
-      .catch(err => console.log(err))
-  })
-  it('test delete product: without administrator\'s acces_token', () => {
-    request(app)
-      .post('/products/delete:id')
-      .set({
-        access_token: 'not.admin'
-      })
-      .then(response => {
-        let { body, status } = response
-        expect(status).toBe(401)
-        expect(body).toHaveProperty('msg', 'Authentication failed')
-      })
-      .catch(err => console.log(err))
   })
 })

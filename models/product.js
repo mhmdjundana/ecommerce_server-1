@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
         min: {
           args: [0],
           msg: 'Price must equal or greater than 0'
+        },
+        isNumeric: {
+          args: true,
+          msg: 'Price value must be a number!'
         }
       }
     },
